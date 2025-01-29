@@ -3,7 +3,7 @@ import { StepHeader } from "@/components/StepHeader";
 import { QRTypeCard } from "@/components/QRTypeCard";
 import {
   Globe,
-  FilePdf,
+  FileText,
   Link,
   IdCard,
   Facebook,
@@ -13,8 +13,6 @@ import {
   MessageSquare,
   Music,
   Menu,
-  Smartphone,
-  Percent,
   Wifi,
 } from "lucide-react";
 
@@ -25,7 +23,7 @@ const qrTypes = [
     description: "Enlace a la URL de cualquier sitio web",
   },
   {
-    icon: FilePdf,
+    icon: FileText,
     title: "PDF",
     description: "Mostrar un PDF",
   },
