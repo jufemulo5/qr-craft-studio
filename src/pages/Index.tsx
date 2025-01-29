@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { StepHeader } from "@/components/StepHeader";
 import { QRTypeCard } from "@/components/QRTypeCard";
+import { WebsiteQRForm } from "@/components/WebsiteQRForm";
 import {
   Globe,
   FileText,
@@ -79,32 +80,73 @@ const qrTypes = [
   },
 ];
 
+interface QRData {
+  type: string;
+  url?: string;
+  name?: string;
+}
+
 export default function Index() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [qrData, setQRData] = useState<QRData | null>(null);
+
+  const handleTypeSelect = (title: string) => {
+    setSelectedType(title);
+    setQRData({ type: title });
+    setCurrentStep(2);
+  };
+
+  const handleWebsiteSubmit = (values: { url: string; name: string }) => {
+    setQRData((prev) => ({
+      ...prev!,
+      url: values.url,
+      name: values.name,
+    }));
+    setCurrentStep(3);
+  };
+
+  const handleBack = () => {
+    setCurrentStep(1);
+    setSelectedType(null);
+    setQRData(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <StepHeader currentStep={currentStep} />
       <main className="max-w-4xl mx-auto px-6 py-8">
-        <h1 className="text-2xl font-bold mb-8">
-          1. Seleccione un tipo de código QR
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {qrTypes.map((type) => (
-            <QRTypeCard
-              key={type.title}
-              icon={type.icon}
-              title={type.title}
-              description={type.description}
-              selected={selectedType === type.title}
-              onClick={() => {
-                setSelectedType(type.title);
-                setTimeout(() => setCurrentStep(2), 300);
-              }}
+        {currentStep === 1 && (
+          <>
+            <h1 className="text-2xl font-bold mb-8">
+              1. Seleccione un tipo de código QR
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {qrTypes.map((type) => (
+                <QRTypeCard
+                  key={type.title}
+                  icon={type.icon}
+                  title={type.title}
+                  description={type.description}
+                  selected={selectedType === type.title}
+                  onClick={() => handleTypeSelect(type.title)}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {currentStep === 2 && selectedType === "Sitio web" && (
+          <>
+            <h1 className="text-2xl font-bold mb-8">
+              2. Añada contenido a su código QR
+            </h1>
+            <WebsiteQRForm
+              onBack={handleBack}
+              onSubmit={handleWebsiteSubmit}
             />
-          ))}
-        </div>
+          </>
+        )}
       </main>
     </div>
   );
