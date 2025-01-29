@@ -15,8 +15,10 @@ export default function Index() {
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Genera códigos QR personalizados para tu negocio, eventos o uso personal de manera rápida y sencilla.
           </p>
-          <Button size="lg" className="gap-2">
-            Crear código QR <ArrowRight className="w-4 h-4" />
+          <Button size="lg" className="gap-2" asChild>
+            <Link to="/generator">
+              Crear código QR <ArrowRight className="w-4 h-4" />
+            </Link>
           </Button>
         </div>
       </section>
