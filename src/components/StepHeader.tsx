@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SignUpDialog } from "@/components/ui/sign-up-dialog";
 
 interface StepHeaderProps {
   currentStep: number;
@@ -8,17 +10,19 @@ interface StepHeaderProps {
 const steps = [
   { number: 1, title: "Tipo de código QR" },
   { number: 2, title: "Contenido" },
-  { number: 3, title: "Diseño del QR" },
+  { number: 3, title: "Descarga o comparte" },
 ];
 
 export function StepHeader({ currentStep }: StepHeaderProps) {
   return (
     <div className="w-full py-4 px-6 border-b">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <img src="/lovable-uploads/f07bce87-1046-43d7-80d9-eec8cb1829a1.png" alt="QR Generator" className="h-8" />
-          <span className="font-semibold text-lg">Online QR Generator</span>
-        </div>
+        <Link to="/">
+          <div className="flex items-center space-x-2">
+            <img src="/lovable-uploads/f07bce87-1046-43d7-80d9-eec8cb1829a1.png" alt="QR Generator" className="h-8" />
+            <span className="font-semibold text-lg">Online QR Generator</span>
+          </div>
+        </Link>
         <div className="hidden md:flex items-center space-x-4">
           {steps.map((step) => (
             <div
@@ -51,6 +55,12 @@ export function StepHeader({ currentStep }: StepHeaderProps) {
               <span className="text-sm font-medium">{step.title}</span>
             </div>
           ))}
+        </div>
+        <div className="flex items-center space-x-4">
+          <button className="px-4 py-2 text-sm font-medium rounded-md hover:bg-secondary">
+            Sign in
+          </button>
+          <SignUpDialog />
         </div>
       </div>
     </div>

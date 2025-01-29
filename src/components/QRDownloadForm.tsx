@@ -98,12 +98,56 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
   };
 
   const handleSubmit = async (values: DownloadFormValues) => {
-    // Aquí iría la lógica para enviar el correo electrónico
-    // Por ahora solo mostraremos un toast de éxito
-    toast({
-      title: "¡Correo enviado!",
-      description: "El código QR ha sido enviado a su correo electrónico",
-    });
+    const apiKey = process.env.MAILGUN_API_KEY;
+    if (!apiKey) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "API key de Mailgun no configurada.",
+      });
+      return;
+    }
+
+    const mailgun = require("mailgun.js").default;
+    const mg = mailgun({ apiKey: apiKey, domain: "your-mailgun-domain.com" }); // Reemplazar con tu dominio de Mailgun
+
+    const qrElement = document.getElementById("qr-code");
+    if (!qrElement) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo encontrar el código QR.",
+      });
+      return;
+    }
+
+    try {
+      const qrImageBase64 = await toPng(qrElement, { quality: 1 });
+
+      const emailData = {
+        from: "QR Craft Studio <no-reply@your-mailgun-domain.com>", // Reemplazar con tu remitente
+        to: values.email,
+        subject: "Tu código QR de QR Craft Studio",
+        text: "Adjunto encontrarás tu código QR generado con QR Craft Studio.",
+        attachment: [
+          { data: qrImageBase64.split(',')[1], filename: `${name}-qr.png`, contentType: 'image/png' },
+        ],
+      };
+
+      await mg.messages.create("your-mailgun-domain.com", emailData); // Reemplazar con tu dominio de Mailgun
+
+      toast({
+        title: "¡Correo enviado!",
+        description: "El código QR ha sido enviado a su correo electrónico.",
+      });
+    } catch (error) {
+      console.error("Error al enviar el correo:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al enviar correo",
+        description: "Hubo un error al enviar el correo electrónico.",
+      });
+    }
   };
 
   return (
