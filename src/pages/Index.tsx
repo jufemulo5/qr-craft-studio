@@ -1,14 +1,113 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { StepHeader } from "@/components/StepHeader";
+import { QRTypeCard } from "@/components/QRTypeCard";
+import {
+  Globe,
+  FilePdf,
+  Link,
+  IdCard,
+  Facebook,
+  Video,
+  Image,
+  Instagram,
+  MessageSquare,
+  Music,
+  Menu,
+  Smartphone,
+  Percent,
+  Wifi,
+} from "lucide-react";
 
-const Index = () => {
+const qrTypes = [
+  {
+    icon: Globe,
+    title: "Sitio web",
+    description: "Enlace a la URL de cualquier sitio web",
+  },
+  {
+    icon: FilePdf,
+    title: "PDF",
+    description: "Mostrar un PDF",
+  },
+  {
+    icon: Link,
+    title: "Lista de enlaces",
+    description: "Comparta múltiples enlaces",
+  },
+  {
+    icon: IdCard,
+    title: "vCard",
+    description: "Comparta una tarjeta de visita electrónica",
+  },
+  {
+    icon: Facebook,
+    title: "Facebook",
+    description: "Comparta su página de Facebook",
+  },
+  {
+    icon: Video,
+    title: "Video",
+    description: "Mostrar un video",
+  },
+  {
+    icon: Image,
+    title: "Imágenes",
+    description: "Comparta múltiples imágenes",
+  },
+  {
+    icon: Instagram,
+    title: "Instagram",
+    description: "Comparta su Instagram",
+  },
+  {
+    icon: MessageSquare,
+    title: "WhatsApp",
+    description: "Reciba mensajes de WhatsApp",
+  },
+  {
+    icon: Music,
+    title: "MP3",
+    description: "Comparta un archivo de audio",
+  },
+  {
+    icon: Menu,
+    title: "Menú",
+    description: "Cree un menú de restaurante",
+  },
+  {
+    icon: Wifi,
+    title: "Wi-Fi",
+    description: "Conectarse a una red Wi-Fi",
+  },
+];
+
+export default function Index() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <StepHeader currentStep={currentStep} />
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        <h1 className="text-2xl font-bold mb-8">
+          1. Seleccione un tipo de código QR
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {qrTypes.map((type) => (
+            <QRTypeCard
+              key={type.title}
+              icon={type.icon}
+              title={type.title}
+              description={type.description}
+              selected={selectedType === type.title}
+              onClick={() => {
+                setSelectedType(type.title);
+                setTimeout(() => setCurrentStep(2), 300);
+              }}
+            />
+          ))}
+        </div>
+      </main>
     </div>
   );
-};
-
-export default Index;
+}
