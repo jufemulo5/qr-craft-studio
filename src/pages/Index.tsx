@@ -2,6 +2,7 @@ import { useState } from "react";
 import { StepHeader } from "@/components/StepHeader";
 import { QRTypeCard } from "@/components/QRTypeCard";
 import { WebsiteQRForm } from "@/components/WebsiteQRForm";
+import { QRDownloadForm } from "@/components/QRDownloadForm";
 import {
   Globe,
   FileText,
@@ -144,6 +145,18 @@ export default function Index() {
             <WebsiteQRForm
               onBack={handleBack}
               onSubmit={handleWebsiteSubmit}
+            />
+          </>
+        )}
+
+        {currentStep === 3 && qrData?.url && (
+          <>
+            <h1 className="text-2xl font-bold mb-8">
+              3. Descargue su código QR
+            </h1>
+            <QRDownloadForm
+              url={qrData.url}
+              name={qrData.name || "qr-code"}
             />
           </>
         )}
