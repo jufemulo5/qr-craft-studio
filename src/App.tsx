@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import QRGenerator from "./pages/qrgenerator";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +59,14 @@ const App = () => (
               <main className="flex-1 overflow-y-auto">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
                   <Route
                     path="/qrgenerator"
                     element={
