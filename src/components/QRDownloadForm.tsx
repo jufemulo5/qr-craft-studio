@@ -9,7 +9,8 @@ import { Download, Mail, Check } from "lucide-react";
 import QRCode from "qrcode";
 import { toPng, toJpeg } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -42,12 +43,46 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
     },
   });
 
-  // Generar QR al montar el componente
+  // Generar QR y guardar en la base de datos al montar el componente
   useState(() => {
-    QRCode.toDataURL(url, {
-      width: 400,
-      margin: 2,
-    }).then(setQrDataUrl);
+    const generateAndSaveQR = async () => {
+      try {
+        const dataUrl = await QRCode.toDataURL(url, {
+          width: 400,
+          margin: 2,
+        });
+        setQrDataUrl(dataUrl);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { error } = await supabase.from('qr_codes').insert({
+            user_id: user.id,
+            name: name,
+            type: 'url',
+            content: url,
+          });
+
+          if (error) {
+            console.error('Error saving QR code:', error);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "No se pudo guardar el código QR",
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo generar el código QR",
+        });
+      }
+    };
+
+    generateAndSaveQR();
   });
 
   const handleDownload = async (format: string) => {
@@ -211,7 +246,7 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
                   className="flex-1"
                   onClick={() => handleDownload(form.getValues("format"))}
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4 mr-2" />
                   Descargar
                 </Button>
               </div>
@@ -246,7 +281,7 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
               />
 
               <Button type="submit" variant="outline" className="w-full">
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4 mr-2" />
                 Enviar por correo
               </Button>
             </form>
