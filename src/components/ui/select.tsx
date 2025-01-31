@@ -4,7 +4,40 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Select = SelectPrimitive.Root
+interface SelectProps {
+  label?: string;
+  options?: string[];
+}
+
+const Select = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Root>,
+  SelectProps
+>(({ className, label, options, children, ...props }, ref) => {
+  return (
+  <SelectPrimitive.Root
+    ref={ref}
+    className={className}
+    {...props}
+  >
+    {label && <SelectLabel>{label}</SelectLabel>}
+    <SelectTrigger>
+      <SelectValue placeholder="Select" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectScrollUpButton />
+      <SelectPrimitive.Viewport>
+        {options?.map((option) => (
+          <SelectItem key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectPrimitive.Viewport>
+      <SelectScrollDownButton />
+    </SelectContent>
+  </SelectPrimitive.Root>
+  )
+})
+Select.displayName = SelectPrimitive.Root.displayName
 
 const SelectGroup = SelectPrimitive.Group
 

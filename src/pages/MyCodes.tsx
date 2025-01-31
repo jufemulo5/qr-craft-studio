@@ -27,7 +27,7 @@ interface QRCode {
   scans: number;
 }
 
-const Dashboard = () => {
+const MyCodes = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("active");
@@ -203,4 +203,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default MyCodes;

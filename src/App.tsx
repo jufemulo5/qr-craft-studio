@@ -9,10 +9,11 @@ import { Header } from "@/components/Header";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
+import MyCodes from "./pages/MyCodes";
 import QRGenerator from "./pages/qrgenerator";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -61,10 +62,18 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route
-                    path="/dashboard"
+                    path="/my-codes"
                     element={
                       <PrivateRoute>
-                        <Dashboard />
+                        <MyCodes />
+                      </PrivateRoute>
+                    }
+                  />
+                   <Route
+                    path="/my-analytics"
+                    element={
+                      <PrivateRoute>
+                        <Analytics />
                       </PrivateRoute>
                     }
                   />
