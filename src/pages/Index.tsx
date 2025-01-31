@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Index() {
+  const navigate = useNavigate();
+
+  const handleCreateQR = () => {
+    navigate('/qrgenerator');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -15,10 +21,8 @@ export default function Index() {
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Genera códigos QR personalizados para tu negocio, eventos o uso personal de manera rápida y sencilla.
           </p>
-          <Button size="lg" className="gap-2" asChild>
-            <Link to="/qrgenerator">
-              Crear código QR <ArrowRight className="w-4 h-4" />
-            </Link>
+          <Button size="lg" className="gap-2" onClick={handleCreateQR}>
+            Crear código QR <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </section>
@@ -93,8 +97,8 @@ export default function Index() {
           <p className="mb-8 text-primary-foreground/90">
             Empieza a crear tus códigos QR personalizados ahora mismo de forma gratuita.
           </p>
-          <Button variant="secondary" size="lg" asChild>
-            <Link to="/qrgenerator">Crear código QR gratis</Link>
+          <Button variant="secondary" size="lg" onClick={handleCreateQR}>
+            Crear código QR gratis
           </Button>
         </div>
       </section>
