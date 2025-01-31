@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function SignUpDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +15,7 @@ export function SignUpDialog() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +46,7 @@ export function SignUpDialog() {
           title: "¡Bienvenido de vuelta!",
           description: "Has iniciado sesión exitosamente.",
         });
+        navigate('/qrgenerator');
       }
 
       setIsOpen(false);
@@ -62,7 +66,10 @@ export function SignUpDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Iniciar sesión</Button>
+        <Button variant="outline" size="sm" className="gap-2">
+          <LogIn className="w-4 h-4" />
+          Iniciar sesión
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

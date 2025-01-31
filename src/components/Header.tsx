@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { SignUpDialog } from "@/components/ui/sign-up-dialog";
 
 export function Header() {
   const navigate = useNavigate();
@@ -22,13 +23,9 @@ export function Header() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleAuth = async () => {
-    if (user) {
-      await supabase.auth.signOut();
-      navigate('/');
-    } else {
-      navigate('/qrgenerator');
-    }
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
   };
 
   return (
@@ -42,14 +39,13 @@ export function Header() {
               className="h-8"
             />
           </div>
-          <Button onClick={handleAuth} variant="outline" size="sm" className="gap-2">
-            {user ? 'Cerrar sesión' : (
-              <>
-                <LogIn className="w-4 h-4" />
-                Iniciar sesión
-              </>
-            )}
-          </Button>
+          {user ? (
+            <Button onClick={handleSignOut} variant="outline" size="sm">
+              Cerrar sesión
+            </Button>
+          ) : (
+            <SignUpDialog />
+          )}
         </div>
       </div>
     </header>
