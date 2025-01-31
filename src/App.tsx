@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import QRGenerator from "./pages/qrgenerator";
+import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,14 @@ const App = () => (
                     element={
                       <PrivateRoute>
                         <QRGenerator />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/account"
+                    element={
+                      <PrivateRoute>
+                        <Account />
                       </PrivateRoute>
                     }
                   />
