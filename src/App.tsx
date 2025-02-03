@@ -71,7 +71,7 @@ const App = () => (
                     }
                   />
                   <Route
-                    path="/my-analytics"
+                    path="/analytics"
                     element={
                       <PrivateRoute>
                         <Analytics />
