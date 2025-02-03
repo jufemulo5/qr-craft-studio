@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import MyCodes from "./pages/MyCodes";
 import QRGenerator from "./pages/qrgenerator";
 import Account from "./pages/Account";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/Analytics";
 
@@ -69,7 +70,7 @@ const App = () => (
                       </PrivateRoute>
                     }
                   />
-                   <Route
+                  <Route
                     path="/my-analytics"
                     element={
                       <PrivateRoute>
@@ -93,6 +94,7 @@ const App = () => (
                       </PrivateRoute>
                     }
                   />
+                  <Route path="/contact" element={<Contact />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
