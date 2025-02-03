@@ -1,6 +1,50 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const MetricCards = () => {
+interface MetricCardsProps {
+  isDemoMode: boolean;
+  analyticsData?: {
+    qrCodes: any[];
+    scans: any[];
+  };
+  isLoading: boolean;
+}
+
+export const MetricCards = ({ isDemoMode, analyticsData, isLoading }: MetricCardsProps) => {
+  const getMetrics = () => {
+    if (isDemoMode) {
+      return {
+        totalCodes: 4,
+        totalScans: 309,
+        uniqueScans: 263,
+      };
+    }
+
+    if (!analyticsData) return { totalCodes: 0, totalScans: 0, uniqueScans: 0 };
+
+    const totalCodes = analyticsData.qrCodes.length;
+    const totalScans = analyticsData.scans.length;
+    const uniqueScans = analyticsData.scans.filter(scan => scan.is_unique).length;
+
+    return { totalCodes, totalScans, uniqueScans };
+  };
+
+  const metrics = getMetrics();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="bg-white">
+            <CardContent className="p-6">
+              <Skeleton className="h-20 w-full" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <Card className="bg-white">
@@ -13,7 +57,7 @@ export const MetricCards = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total de códigos QR</p>
-              <p className="text-2xl font-semibold">4</p>
+              <p className="text-2xl font-semibold">{metrics.totalCodes}</p>
             </div>
           </div>
         </CardContent>
@@ -29,7 +73,7 @@ export const MetricCards = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total de escaneos</p>
-              <p className="text-2xl font-semibold">309</p>
+              <p className="text-2xl font-semibold">{metrics.totalScans}</p>
             </div>
           </div>
         </CardContent>
@@ -46,7 +90,7 @@ export const MetricCards = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total de escaneos únicos</p>
-              <p className="text-2xl font-semibold">263</p>
+              <p className="text-2xl font-semibold">{metrics.uniqueScans}</p>
             </div>
           </div>
         </CardContent>

@@ -45,9 +45,12 @@ export type Database = {
           created_at: string
           folder: string | null
           id: string
+          last_scan_at: string | null
           name: string
+          scan_data: Json | null
           scans: number | null
           type: string
+          unique_scans: number | null
           updated_at: string
           user_id: string
         }
@@ -56,9 +59,12 @@ export type Database = {
           created_at?: string
           folder?: string | null
           id?: string
+          last_scan_at?: string | null
           name: string
+          scan_data?: Json | null
           scans?: number | null
           type: string
+          unique_scans?: number | null
           updated_at?: string
           user_id: string
         }
@@ -67,13 +73,60 @@ export type Database = {
           created_at?: string
           folder?: string | null
           id?: string
+          last_scan_at?: string | null
           name?: string
+          scan_data?: Json | null
           scans?: number | null
           type?: string
+          unique_scans?: number | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      qr_scans: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          device: string | null
+          id: string
+          is_unique: boolean | null
+          os: string | null
+          qr_code_id: string | null
+          scanned_at: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device?: string | null
+          id?: string
+          is_unique?: boolean | null
+          os?: string | null
+          qr_code_id?: string | null
+          scanned_at?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device?: string | null
+          id?: string
+          is_unique?: boolean | null
+          os?: string | null
+          qr_code_id?: string | null
+          scanned_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_scans_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "qr_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
