@@ -1,5 +1,5 @@
 import React from "react";
-import { Line, Pie } from "recharts";
+import { LineChart, Line as RechartsLine, PieChart, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -15,29 +15,42 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 
 const Analytics = () => {
   const [date, setDate] = React.useState<Date>();
 
-  const lineData = {
-    labels: ["Ene 05", "Ene 06", "Ene 07", "Ene 08", "Ene 09", "Ene 10"],
-    datasets: [
-      {
-        label: "Escaneos",
-        data: [5, 10, 15, 8, 12, 18],
-        borderColor: "#10B981",
-        fill: false,
-      },
-      {
-        label: "Escaneos Únicos",
-        data: [3, 7, 12, 6, 9, 15],
-        borderColor: "#3B82F6",
-        fill: true,
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-      },
-    ],
-  };
+  const lineData = [
+    { name: "Ene 05", scans: 5, uniqueScans: 3 },
+    { name: "Ene 06", scans: 10, uniqueScans: 7 },
+    { name: "Ene 07", scans: 15, uniqueScans: 12 },
+    { name: "Ene 08", scans: 8, uniqueScans: 6 },
+    { name: "Ene 09", scans: 12, uniqueScans: 9 },
+    { name: "Ene 10", scans: 18, uniqueScans: 15 },
+  ];
+
+  const osData = [
+    { name: "iOS", value: 34.0 },
+    { name: "Android", value: 33.7 },
+    { name: "Windows", value: 17.5 },
+    { name: "Linux", value: 6.1 },
+    { name: "Mac OS", value: 6.1 },
+  ];
+
+  const countryData = [
+    { name: "United States", value: 16.2 },
+    { name: "Canada", value: 13.6 },
+    { name: "India", value: 10.4 },
+    { name: "France", value: 10.0 },
+    { name: "Spain", value: 9.4 },
+  ];
+
+  const cityData = [
+    { name: "New York", value: 8.7 },
+    { name: "Montreal", value: 8.4 },
+    { name: "Los Angeles", value: 7.1 },
+    { name: "Mumbai", value: 5.5 },
+    { name: "Toronto", value: 5.2 },
+  ];
 
   return (
     <div className="w-full p-6">
@@ -218,48 +231,26 @@ const Analytics = () => {
           <p className="text-sm text-gray-500">Ene 5, 2025 - Feb 3, 2025</p>
         </div>
         <div className="h-[300px]">
-          <ChartContainer
-            className="h-full"
-            config={{
-              scans: {
-                label: "Escaneos",
-                color: "#10B981",
-              },
-              uniqueScans: {
-                label: "Escaneos únicos",
-                color: "#3B82F6",
-              },
-            }}
-          >
-            <Line
-              data={lineData}
-              options={{
-                responsive: true,
-                plugins: {
-                  tooltip: {
-                    enabled: false,
-                  },
-                  legend: {
-                    display: true,
-                    position: "top" as const,
-                  },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: {
-                      color: "#f3f4f6",
-                    },
-                  },
-                  x: {
-                    grid: {
-                      display: false,
-                    },
-                  },
-                },
-              }}
-            />
-          </ChartContainer>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={lineData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <RechartsLine
+                type="monotone"
+                dataKey="scans"
+                stroke="#10B981"
+                strokeWidth={2}
+              />
+              <RechartsLine
+                type="monotone"
+                dataKey="uniqueScans"
+                stroke="#3B82F6"
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -268,29 +259,20 @@ const Analytics = () => {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4">Escaneos por sistema operativo</h3>
             <div className="h-[300px]">
-              <Pie
-                data={{
-                  labels: ["iOS", "Android", "Windows", "Linux", "Mac OS"],
-                  datasets: [{
-                    data: [34.0, 33.7, 17.5, 6.1, 6.1],
-                    backgroundColor: [
-                      "#10B981",
-                      "#F97316",
-                      "#3B82F6",
-                      "#8B5CF6",
-                      "#EC4899",
-                    ],
-                  }],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: "bottom" as const,
-                    },
-                  },
-                }}
-              />
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={osData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#10B981"
+                  />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -299,29 +281,20 @@ const Analytics = () => {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4">Escaneos por país</h3>
             <div className="h-[300px]">
-              <Pie
-                data={{
-                  labels: ["United States", "Canada", "India", "France", "Spain"],
-                  datasets: [{
-                    data: [16.2, 13.6, 10.4, 10.0, 9.4],
-                    backgroundColor: [
-                      "#10B981",
-                      "#F97316",
-                      "#3B82F6",
-                      "#8B5CF6",
-                      "#EC4899",
-                    ],
-                  }],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: "bottom" as const,
-                    },
-                  },
-                }}
-              />
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={countryData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#F97316"
+                  />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -330,29 +303,20 @@ const Analytics = () => {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4">Escaneos por región/ciudad</h3>
             <div className="h-[300px]">
-              <Pie
-                data={{
-                  labels: ["New York", "Montreal", "Los Angeles", "Mumbai", "Toronto"],
-                  datasets: [{
-                    data: [8.7, 8.4, 7.1, 5.5, 5.2],
-                    backgroundColor: [
-                      "#10B981",
-                      "#F97316",
-                      "#3B82F6",
-                      "#8B5CF6",
-                      "#EC4899",
-                    ],
-                  }],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: "bottom" as const,
-                    },
-                  },
-                }}
-              />
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={cityData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#3B82F6"
+                  />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
