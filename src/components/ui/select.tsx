@@ -1,42 +1,25 @@
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
-interface SelectProps {
-  label?: string;
-  options?: string[];
+export interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> {
+  children?: React.ReactNode;
+  className?: string;
 }
 
 const Select = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Root>,
   SelectProps
->(({ className, label, options, children, ...props }, ref) => {
-  return (
+>(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Root
     ref={ref}
     className={className}
     {...props}
   >
-    {label && <SelectLabel>{label}</SelectLabel>}
-    <SelectTrigger>
-      <SelectValue placeholder="Select" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport>
-        {options?.map((option) => (
-          <SelectItem key={option} value={option}>
-            {option}
-          </SelectItem>
-        ))}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectContent>
+    {children}
   </SelectPrimitive.Root>
-  )
-})
+))
 Select.displayName = SelectPrimitive.Root.displayName
 
 const SelectGroup = SelectPrimitive.Group
