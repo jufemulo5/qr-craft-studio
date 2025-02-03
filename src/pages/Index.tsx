@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ContactForm } from "@/components/ContactForm";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -90,7 +91,21 @@ export default function Index() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Contact Section */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">¿Necesitas ayuda?</h2>
+            <p className="text-gray-600">
+              Estamos aquí para ayudarte. Envíanos un mensaje y nos pondremos en contacto contigo lo antes posible.
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
+            <ContactForm />
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 px-4 bg-primary text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">¿A punto para comenzar?</h2>
