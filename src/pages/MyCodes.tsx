@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EditQRDialog } from "@/components/EditQRDialog";
 import {
   Select,
   SelectContent,
@@ -11,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { X, FolderPlus, Edit2, Link2, MoreVertical } from "lucide-react";
+import { X, FolderPlus, Link2, MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +58,10 @@ const MyCodes = () => {
             <FolderPlus className="w-4 h-4" />
             Carpeta nueva
           </Button>
-          <Button className="flex items-center gap-2 bg-green-500 hover:bg-green-600">
+          <Button 
+            className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
+            onClick={() => navigate('/qrgenerator')}
+          >
             Crear código QR
           </Button>
         </div>
@@ -151,14 +155,18 @@ const MyCodes = () => {
               <Card key={qr.id} className="p-4">
                 <div className="flex items-center gap-4">
                   <Checkbox id={`qr-${qr.id}`} />
-                  <div className="w-16 h-16 bg-gray-100 rounded"></div>
+                  <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qr.content)}`}
+                      alt={`QR Code for ${qr.name}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">{qr.type}</span>
                       <h3 className="font-medium">{qr.name}</h3>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
+                      <EditQRDialog qrCode={qr} />
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <span>{new Date(qr.created_at).toLocaleDateString()}</span>
