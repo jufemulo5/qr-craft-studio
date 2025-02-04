@@ -1,32 +1,14 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { EditQRDialog } from "@/components/EditQRDialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { X, FolderPlus, Link2, MoreVertical } from "lucide-react";
+import { X, FolderPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-
-interface QRCode {
-  id: string;
-  name: string;
-  type: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  folder: string | null;
-  scans: number;
-}
+import { QRCodeFilters } from "@/components/qr/QRCodeFilters";
+import { QRCodeList } from "@/components/qr/QRCodeList";
+import { QRCodePagination } from "@/components/qr/QRCodePagination";
 
 const MyCodes = () => {
   const navigate = useNavigate();
@@ -35,6 +17,8 @@ const MyCodes = () => {
   const [selectedType, setSelectedType] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [limit, setLimit] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedQRs, setSelectedQRs] = useState<Set<string>>(new Set());
 
   const { data: qrCodes, isLoading } = useQuery({
     queryKey: ["qrCodes"],
@@ -45,7 +29,7 @@ const MyCodes = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data as QRCode[];
+      return data;
     },
   });
 
@@ -92,120 +76,37 @@ const MyCodes = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="flex gap-4 items-center">
-          <div className="flex-1">
-            <Input
-              placeholder="Buscar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-md"
+        <QRCodeFilters
+          search={search}
+          setSearch={setSearch}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          limit={limit}
+          setLimit={setLimit}
+        />
+
+        {isLoading ? (
+          <div>Cargando...</div>
+        ) : (
+          <>
+            <QRCodeList
+              qrCodes={qrCodes || []}
+              selectedQRs={selectedQRs}
+              setSelectedQRs={setSelectedQRs}
             />
-          </div>
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Estado del código QR" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Activo</SelectItem>
-              <SelectItem value="inactive">Inactivo</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Tipos de códigos QR" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="web">Sitio web</SelectItem>
-              <SelectItem value="text">Texto</SelectItem>
-              <SelectItem value="email">Email</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Más recientes</SelectItem>
-              <SelectItem value="name">Nombre</SelectItem>
-              <SelectItem value="scans">Escaneos</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={limit} onValueChange={setLimit}>
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Cantidad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Checkbox id="selectAll" />
-            <label htmlFor="selectAll">Seleccionar todo</label>
-          </div>
-
-          {isLoading ? (
-            <div>Cargando...</div>
-          ) : (
-            qrCodes?.map((qr) => (
-              <Card key={qr.id} className="p-4">
-                <div className="flex items-center gap-4">
-                  <Checkbox id={`qr-${qr.id}`} />
-                  <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qr.content)}`}
-                      alt={`QR Code for ${qr.name}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">{qr.type}</span>
-                      <h3 className="font-medium">{qr.name}</h3>
-                      <EditQRDialog qrCode={qr} />
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span>{new Date(qr.created_at).toLocaleDateString()}</span>
-                      <div className="flex items-center gap-1">
-                        <Link2 className="w-4 h-4" />
-                        <span className="text-gray-700">{qr.content}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-semibold">{qr.scans}</div>
-                      <div className="text-sm text-gray-500">Escaneos</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline">Descargar</Button>
-                      <Button variant="outline">Detalle</Button>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div>Mostrando 1-{qrCodes?.length || 0} de {qrCodes?.length || 0} resultados.</div>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled>
-              Anterior
-            </Button>
-            <Button variant="outline">
-              Siguiente
-            </Button>
-          </div>
-        </div>
+            <QRCodePagination
+              currentPage={currentPage}
+              totalResults={qrCodes?.length || 0}
+              limit={Number(limit)}
+              onPageChange={setCurrentPage}
+            />
+          </>
+        )}
       </div>
     </div>
   );
