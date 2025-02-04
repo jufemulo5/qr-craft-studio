@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EditQRDialog } from "@/components/EditQRDialog";
 import { QRDetailDialog } from "@/components/qr/QRDetailDialog";
-import { Link2, MoreVertical } from "lucide-react";
+import { QRDownloadDialog } from "@/components/qr/QRDownloadDialog";
+import { Link2, MoreVertical, Download } from "lucide-react";
 
 interface QRCode {
   id: string;
@@ -21,6 +23,8 @@ interface QRCodeCardProps {
 }
 
 export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+
   return (
     <Card className="p-4">
       <div className="flex items-center gap-4">
@@ -52,7 +56,13 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
             <div className="text-sm text-gray-500">Escaneos</div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">Descargar</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDownloadDialog(true)}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Descargar
+            </Button>
             <QRDetailDialog qrCode={qr} />
             <Button variant="ghost" size="icon">
               <MoreVertical className="w-4 h-4" />
@@ -60,6 +70,13 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
           </div>
         </div>
       </div>
+
+      <QRDownloadDialog
+        open={showDownloadDialog}
+        onOpenChange={setShowDownloadDialog}
+        url={qr.content}
+        name={qr.name}
+      />
     </Card>
   );
 }
