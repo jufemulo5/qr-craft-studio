@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Share2, X } from "lucide-react";
+import { Download, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import QRCode from "qrcode";
 import { toPng, toJpeg } from "html-to-image";
@@ -28,21 +28,46 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
   const [format, setFormat] = useState("png");
   const [resolution, setResolution] = useState("512");
   const { toast } = useToast();
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  // Generate QR code when dialog opens or URL changes
+  useState(() => {
+    const generateQR = async () => {
+      try {
+        const dataUrl = await QRCode.toDataURL(url, {
+          width: parseInt(resolution),
+          margin: 2,
+        });
+        setQrDataUrl(dataUrl);
+      } catch (error) {
+        console.error("Error generating QR:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo generar el código QR",
+        });
+      }
+    };
+    if (open) {
+      generateQR();
+    }
+  });
 
   const handleDownload = async () => {
-    const qrElement = document.getElementById("qr-code");
-    if (!qrElement) return;
+    const qrElement = document.getElementById("qr-preview");
+    if (!qrElement) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo encontrar el elemento QR",
+      });
+      return;
+    }
 
     try {
       let downloadUrl: string;
       let filename = `${name}-qr`;
-
-      // Generar QR con la resolución seleccionada
       const size = parseInt(resolution);
-      const qrDataUrl = await QRCode.toDataURL(url, {
-        width: size,
-        margin: 2,
-      });
 
       switch (format) {
         case "png":
@@ -54,7 +79,6 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
           filename += ".jpg";
           break;
         case "svg":
-          // Generar SVG directamente desde QRCode
           const svgString = await QRCode.toString(url, {
             type: 'svg',
             width: size,
@@ -102,59 +126,32 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
           <DialogTitle>Elija el formato de descarga</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
+          <div 
+            id="qr-preview"
+            className="mx-auto bg-white p-4 rounded-lg shadow-sm border-2 border-dashed border-primary/20 w-48 h-48"
+          >
+            {qrDataUrl && (
+              <img 
+                src={qrDataUrl} 
+                alt="QR Code Preview" 
+                className="w-full h-full"
+              />
+            )}
+          </div>
+
           <RadioGroup
             value={format}
             onValueChange={setFormat}
             className="grid grid-cols-2 sm:grid-cols-4 gap-4"
           >
-            <div className="flex flex-col items-center gap-2">
-              <Label
-                htmlFor="png"
-                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <img src="/placeholder.svg" alt="PNG" className="w-6 h-6" />
-                </div>
-                <span>PNG</span>
-                <RadioGroupItem value="png" id="png" className="sr-only" />
-              </Label>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Label
-                htmlFor="jpg"
-                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <img src="/placeholder.svg" alt="JPEG" className="w-6 h-6" />
-                </div>
-                <span>JPEG</span>
-                <RadioGroupItem value="jpg" id="jpg" className="sr-only" />
-              </Label>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Label
-                htmlFor="svg"
-                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <img src="/placeholder.svg" alt="SVG" className="w-6 h-6" />
-                </div>
-                <span>SVG</span>
-                <RadioGroupItem value="svg" id="svg" className="sr-only" />
-              </Label>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Label
-                htmlFor="pdf"
-                className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <img src="/placeholder.svg" alt="PDF" className="w-6 h-6" />
-                </div>
-                <span>PDF</span>
-                <RadioGroupItem value="pdf" id="pdf" className="sr-only" />
-              </Label>
-            </div>
+            {["png", "jpg", "svg", "pdf"].map((fmt) => (
+              <div key={fmt} className="flex items-center space-x-2">
+                <RadioGroupItem value={fmt} id={fmt} />
+                <Label htmlFor={fmt} className="capitalize">
+                  {fmt.toUpperCase()}
+                </Label>
+              </div>
+            ))}
           </RadioGroup>
 
           <div className="space-y-2">
