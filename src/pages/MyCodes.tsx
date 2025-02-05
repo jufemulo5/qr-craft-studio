@@ -31,13 +31,9 @@ const MyCodes = () => {
       if (error) throw error;
       
       // Asegurarnos de que no hay duplicados usando el id como clave
-      const uniqueQRCodes = data.reduce((acc: any[], current: any) => {
-        const exists = acc.find(item => item.id === current.id);
-        if (!exists) {
-          acc.push(current);
-        }
-        return acc;
-      }, []);
+      const uniqueQRCodes = Array.from(
+        new Map(data.map(item => [item.id, item])).values()
+      );
       
       return uniqueQRCodes;
     },
