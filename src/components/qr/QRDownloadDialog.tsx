@@ -3,8 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Share2 } from "lucide-react";
+import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import QRCode from "qrcode";
 import { toPng, toJpeg } from "html-to-image";
@@ -17,16 +16,8 @@ interface QRDownloadDialogProps {
   name: string;
 }
 
-const resolutions = [
-  { label: "512x512", value: "512" },
-  { label: "1024x1024", value: "1024" },
-  { label: "2048x2048", value: "2048" },
-  { label: "4096x4096", value: "4096" },
-];
-
 export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDialogProps) {
   const [format, setFormat] = useState("png");
-  const [resolution, setResolution] = useState("512");
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
@@ -35,7 +26,7 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
     const generateQR = async () => {
       try {
         const dataUrl = await QRCode.toDataURL(url, {
-          width: parseInt(resolution),
+          width: 256,
           margin: 2,
         });
         setQrDataUrl(dataUrl);
@@ -67,21 +58,20 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
     try {
       let downloadUrl: string;
       let filename = `${name}-qr`;
-      const size = parseInt(resolution);
 
       switch (format) {
         case "png":
-          downloadUrl = await toPng(qrElement, { width: size, height: size });
+          downloadUrl = await toPng(qrElement);
           filename += ".png";
           break;
         case "jpg":
-          downloadUrl = await toJpeg(qrElement, { width: size, height: size });
+          downloadUrl = await toJpeg(qrElement);
           filename += ".jpg";
           break;
         case "svg":
           const svgString = await QRCode.toString(url, {
             type: 'svg',
-            width: size,
+            width: 256,
             margin: 2,
           });
           const blob = new Blob([svgString], { type: 'image/svg+xml' });
@@ -123,12 +113,12 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Elija el formato de descarga</DialogTitle>
+          <DialogTitle>Descargar código QR</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div 
             id="qr-preview"
-            className="mx-auto bg-white p-4 rounded-lg shadow-sm border-2 border-dashed border-primary/20 w-48 h-48"
+            className="mx-auto bg-white p-4 rounded-lg shadow-sm border-2 border-dashed border-primary/20 w-64 h-64 flex items-center justify-center"
           >
             {qrDataUrl && (
               <img 
@@ -154,31 +144,10 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
             ))}
           </RadioGroup>
 
-          <div className="space-y-2">
-            <Label>Tamaño del archivo</Label>
-            <Select value={resolution} onValueChange={setResolution}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione un tamaño" />
-              </SelectTrigger>
-              <SelectContent>
-                {resolutions.map((res) => (
-                  <SelectItem key={res.value} value={res.value}>
-                    {res.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-2">
-            <Button onClick={handleDownload} className="flex-1">
-              <Download className="w-4 h-4 mr-2" />
-              Descargar
-            </Button>
-            <Button variant="outline" size="icon">
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
+          <Button onClick={handleDownload} className="w-full">
+            <Download className="w-4 h-4 mr-2" />
+            Descargar
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
