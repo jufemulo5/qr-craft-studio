@@ -8,6 +8,8 @@ interface QRCode {
   content: string;
   created_at: string;
   scans: number;
+  unique_scans: number;
+  last_scan_at: string | null;
 }
 
 interface QRCodeListProps {
