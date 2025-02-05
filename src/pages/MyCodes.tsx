@@ -29,7 +29,17 @@ const MyCodes = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      
+      // Asegurarnos de que no hay duplicados usando el id como clave
+      const uniqueQRCodes = data.reduce((acc: any[], current: any) => {
+        const exists = acc.find(item => item.id === current.id);
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+      
+      return uniqueQRCodes;
     },
   });
 

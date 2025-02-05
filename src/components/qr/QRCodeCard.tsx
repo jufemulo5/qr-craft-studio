@@ -32,6 +32,12 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
   const [uniqueScanCount, setUniqueScanCount] = useState(qr.unique_scans || 0);
 
   useEffect(() => {
+    // Actualizar los contadores cuando las props cambien
+    setScanCount(qr.scans || 0);
+    setUniqueScanCount(qr.unique_scans || 0);
+  }, [qr.scans, qr.unique_scans]);
+
+  useEffect(() => {
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -47,7 +53,6 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
           setScanCount(newData.scans || 0);
           setUniqueScanCount(newData.unique_scans || 0);
           
-          // Mostrar notificación de nuevo escaneo
           toast.success('¡Nuevo escaneo detectado!', {
             description: `El código "${qr.name}" ha sido escaneado.`
           });
