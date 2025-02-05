@@ -52,9 +52,10 @@ interface QRCodeCardProps {
   qr: QRCode;
   onSelect: () => void;
   isSelected: boolean;
+  onDelete: (id: string) => Promise<void>;
 }
 
-export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
+export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardProps) {
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [scanCount, setScanCount] = useState(qr.scans || 0);
@@ -102,6 +103,7 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
 
       if (error) throw error;
 
+      await onDelete(qr.id);
       toast.success('Código QR eliminado correctamente');
       setShowDeleteDialog(false);
     } catch (error) {

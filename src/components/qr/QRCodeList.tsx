@@ -1,5 +1,7 @@
 import { QRCodeCard } from "./QRCodeCard";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QRCode {
   id: string;
@@ -13,12 +15,32 @@ interface QRCode {
 }
 
 interface QRCodeListProps {
-  qrCodes: QRCode[];
   selectedQRs: Set<string>;
   setSelectedQRs: (value: Set<string>) => void;
 }
 
-export function QRCodeList({ qrCodes, selectedQRs, setSelectedQRs }: QRCodeListProps) {
+export function QRCodeList({ selectedQRs, setSelectedQRs }: QRCodeListProps) {
+  const queryClient = useQueryClient();
+
+  const { data: qrCodes = [], isLoading } = useQuery({
+    queryKey: ["qrCodes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("qr_codes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Asegurarnos de que no hay duplicados usando el id como clave
+      const uniqueQRCodes = Array.from(
+        new Map(data.map(item => [item.id, item])).values()
+      );
+
+      return uniqueQRCodes;
+    },
+  });
+
   const handleSelectAll = () => {
     if (selectedQRs.size === qrCodes.length) {
       setSelectedQRs(new Set());
@@ -37,6 +59,14 @@ export function QRCodeList({ qrCodes, selectedQRs, setSelectedQRs }: QRCodeListP
     setSelectedQRs(newSelected);
   };
 
+  const handleDelete = async (id: string) => {
+    await queryClient.invalidateQueries({ queryKey: ["qrCodes"] });
+  };
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -54,6 +84,7 @@ export function QRCodeList({ qrCodes, selectedQRs, setSelectedQRs }: QRCodeListP
           qr={qr}
           onSelect={() => handleSelect(qr.id)}
           isSelected={selectedQRs.has(qr.id)}
+          onDelete={handleDelete}
         />
       ))}
     </div>
