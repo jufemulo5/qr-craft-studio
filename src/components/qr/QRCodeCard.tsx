@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EditQRDialog } from "@/components/EditQRDialog";
 import { QRDetailDialog } from "@/components/qr/QRDetailDialog";
 import { QRDownloadDialog } from "@/components/qr/QRDownloadDialog";
-import { Link2, MoreVertical, Download } from "lucide-react";
+import { Link2, MoreVertical, Download, Scan } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface QRCode {
   id: string;
@@ -14,6 +16,8 @@ interface QRCode {
   content: string;
   created_at: string;
   scans: number;
+  unique_scans: number;
+  last_scan_at: string | null;
 }
 
 interface QRCodeCardProps {
@@ -24,6 +28,37 @@ interface QRCodeCardProps {
 
 export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [scanCount, setScanCount] = useState(qr.scans || 0);
+  const [uniqueScanCount, setUniqueScanCount] = useState(qr.unique_scans || 0);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'qr_codes',
+          filter: `id=eq.${qr.id}`
+        },
+        (payload: any) => {
+          const newData = payload.new;
+          setScanCount(newData.scans || 0);
+          setUniqueScanCount(newData.unique_scans || 0);
+          
+          // Mostrar notificación de nuevo escaneo
+          toast.success('¡Nuevo escaneo detectado!', {
+            description: `El código "${qr.name}" ha sido escaneado.`
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qr.id, qr.name]);
 
   return (
     <Card className="p-4">
@@ -51,9 +86,18 @@ export function QRCodeCard({ qr, onSelect, isSelected }: QRCodeCardProps) {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-semibold">{qr.scans}</div>
-            <div className="text-sm text-gray-500">Escaneos</div>
+          <div className="flex gap-4">
+            <div className="text-center">
+              <div className="flex items-center gap-1">
+                <Scan className="w-4 h-4 text-green-500" />
+                <div className="text-2xl font-semibold text-green-600">{scanCount}</div>
+              </div>
+              <div className="text-sm text-gray-500">Total escaneos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold text-blue-600">{uniqueScanCount}</div>
+              <div className="text-sm text-gray-500">Únicos</div>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button 
