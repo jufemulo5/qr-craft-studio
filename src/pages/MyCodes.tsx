@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { X, FolderPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
 import { QRCodeFilters } from "@/components/qr/QRCodeFilters";
 import { QRCodeList } from "@/components/qr/QRCodeList";
 import { QRCodePagination } from "@/components/qr/QRCodePagination";
@@ -19,25 +17,6 @@ const MyCodes = () => {
   const [limit, setLimit] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedQRs, setSelectedQRs] = useState<Set<string>>(new Set());
-
-  const { data: qrCodes, isLoading } = useQuery({
-    queryKey: ["qrCodes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("qr_codes")
-        .select("*")
-        .order("created_at", { ascending: false });
-      
-      if (error) throw error;
-      
-      // Asegurarnos de que no hay duplicados usando el id como clave
-      const uniqueQRCodes = Array.from(
-        new Map(data.map(item => [item.id, item])).values()
-      );
-      
-      return uniqueQRCodes;
-    },
-  });
 
   return (
     <div className="p-6">
@@ -95,24 +74,17 @@ const MyCodes = () => {
           setLimit={setLimit}
         />
 
-        {isLoading ? (
-          <div>Cargando...</div>
-        ) : (
-          <>
-            <QRCodeList
-              qrCodes={qrCodes || []}
-              selectedQRs={selectedQRs}
-              setSelectedQRs={setSelectedQRs}
-            />
+        <QRCodeList
+          selectedQRs={selectedQRs}
+          setSelectedQRs={setSelectedQRs}
+        />
 
-            <QRCodePagination
-              currentPage={currentPage}
-              totalResults={qrCodes?.length || 0}
-              limit={Number(limit)}
-              onPageChange={setCurrentPage}
-            />
-          </>
-        )}
+        <QRCodePagination
+          currentPage={currentPage}
+          totalResults={0} // Este valor se actualizará cuando implementemos la paginación
+          limit={Number(limit)}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
