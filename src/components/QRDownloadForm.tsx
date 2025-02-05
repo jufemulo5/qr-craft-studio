@@ -21,7 +21,7 @@ import {
 
 const downloadFormSchema = z.object({
   email: z.string().email("Por favor, ingrese un email válido").optional(),
-  format: z.enum(["png", "jpg", "pdf"]),
+  format: z.enum(["png", "jpg", "svg", "pdf"]),
 });
 
 type DownloadFormValues = z.infer<typeof downloadFormSchema>;
@@ -101,6 +101,16 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
         case "jpg":
           downloadUrl = await toJpeg(qrElement);
           filename += ".jpg";
+          break;
+        case "svg":
+          const svgString = await QRCode.toString(url, {
+            type: 'svg',
+            width: 400,
+            margin: 2,
+          });
+          const blob = new Blob([svgString], { type: 'image/svg+xml' });
+          downloadUrl = URL.createObjectURL(blob);
+          filename += ".svg";
           break;
         case "pdf":
           const pdf = new jsPDF();
@@ -232,6 +242,7 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
                       <SelectContent>
                         <SelectItem value="png">PNG</SelectItem>
                         <SelectItem value="jpg">JPG</SelectItem>
+                        <SelectItem value="svg">SVG</SelectItem>
                         <SelectItem value="pdf">PDF</SelectItem>
                       </SelectContent>
                     </Select>
