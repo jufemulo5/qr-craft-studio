@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -21,9 +21,10 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
-  // Generate QR code when dialog opens or URL changes
-  useState(() => {
+  useEffect(() => {
     const generateQR = async () => {
+      if (!open) return;
+      
       try {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 256,
@@ -39,10 +40,9 @@ export function QRDownloadDialog({ open, onOpenChange, url, name }: QRDownloadDi
         });
       }
     };
-    if (open) {
-      generateQR();
-    }
-  });
+
+    generateQR();
+  }, [open, url, toast]);
 
   const handleDownload = async () => {
     const qrElement = document.getElementById("qr-preview");
