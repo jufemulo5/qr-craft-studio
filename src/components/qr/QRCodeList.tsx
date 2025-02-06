@@ -2,6 +2,7 @@ import { QRCodeCard } from "./QRCodeCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface QRCodeListProps {
   selectedQRs: Set<string>;
@@ -23,6 +24,27 @@ export function QRCodeList({ selectedQRs, setSelectedQRs }: QRCodeListProps) {
       return data;
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'qr_codes'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["qrCodes"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleSelectAll = () => {
     if (selectedQRs.size === qrCodes.length) {
