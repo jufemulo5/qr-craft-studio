@@ -107,14 +107,18 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
 
       if (error) throw error;
 
-      await onDelete();
+      // Primero cerramos el diálogo
+      setShowDeleteDialog(false);
+      // Luego notificamos el éxito
       toast.success('Código QR eliminado correctamente');
+      // Finalmente actualizamos la lista
+      await onDelete();
     } catch (error) {
       console.error('Error al eliminar el código QR:', error);
       toast.error('Error al eliminar el código QR');
+      setShowDeleteDialog(false);
     } finally {
       setIsDeleting(false);
-      setShowDeleteDialog(false);
     }
   };
 
@@ -204,7 +208,10 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
                   <Pause className="w-4 h-4 mr-2" />
                   Pausar
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600" onClick={() => setShowDeleteDialog(true)}>
+                <DropdownMenuItem 
+                  className="text-red-600" 
+                  onClick={() => setShowDeleteDialog(true)}
+                >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Eliminar
                 </DropdownMenuItem>
@@ -231,8 +238,12 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Eliminar
+            <AlertDialogAction 
+              onClick={handleDelete} 
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
