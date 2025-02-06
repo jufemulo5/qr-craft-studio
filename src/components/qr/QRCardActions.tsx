@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 
 interface QRCardActionsProps {
   qrCode: {
+    id: string;
     content: string;
     name: string;
   };
