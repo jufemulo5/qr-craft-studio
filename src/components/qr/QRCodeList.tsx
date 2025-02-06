@@ -64,7 +64,7 @@ export function QRCodeList({ selectedQRs, setSelectedQRs }: QRCodeListProps) {
     setSelectedQRs(newSelected);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
     await queryClient.invalidateQueries({ queryKey: ["qrCodes"] });
   };
 

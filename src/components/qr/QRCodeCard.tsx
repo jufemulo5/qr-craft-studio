@@ -52,7 +52,7 @@ interface QRCodeCardProps {
   qr: QRCode;
   onSelect: () => void;
   isSelected: boolean;
-  onDelete: (id: string) => Promise<void>;
+  onDelete: () => Promise<void>;
 }
 
 export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardProps) {
@@ -60,6 +60,7 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [scanCount, setScanCount] = useState(qr.scans || 0);
   const [uniqueScanCount, setUniqueScanCount] = useState(qr.unique_scans || 0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setScanCount(qr.scans || 0);
@@ -95,7 +96,10 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
   }, [qr.id, qr.name]);
 
   const handleDelete = async () => {
+    if (isDeleting) return;
+    
     try {
+      setIsDeleting(true);
       const { error } = await supabase
         .from('qr_codes')
         .delete()
@@ -103,12 +107,14 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
 
       if (error) throw error;
 
-      await onDelete(qr.id);
+      await onDelete();
       toast.success('Código QR eliminado correctamente');
-      setShowDeleteDialog(false);
     } catch (error) {
       console.error('Error al eliminar el código QR:', error);
       toast.error('Error al eliminar el código QR');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
