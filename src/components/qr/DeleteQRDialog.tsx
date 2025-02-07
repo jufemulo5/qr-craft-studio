@@ -1,3 +1,4 @@
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,8 +26,24 @@ export function DeleteQRDialog({
   isDeleting,
   qrName 
 }: DeleteQRDialogProps) {
+  const handleConfirm = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await onConfirm();
+    } finally {
+      // Aseguramos que el diálogo se cierre incluso si hay un error
+      onOpenChange(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (!isDeleting) {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleCancel}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
@@ -35,12 +52,11 @@ export function DeleteQRDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>
+            Cancelar
+          </AlertDialogCancel>
           <AlertDialogAction 
-            onClick={(e) => {
-              e.preventDefault();
-              onConfirm();
-            }} 
+            onClick={handleConfirm}
             className="bg-red-600 hover:bg-red-700"
             disabled={isDeleting}
           >

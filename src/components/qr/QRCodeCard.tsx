@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,7 +44,7 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
 
   useEffect(() => {
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel(`qr-code-${qr.id}`)
       .on(
         'postgres_changes',
         {
@@ -81,15 +82,14 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
 
       if (error) throw error;
 
-      setShowDeleteDialog(false);
       await onDelete();
       toast.success('Código QR eliminado correctamente');
     } catch (error) {
       console.error('Error al eliminar el código QR:', error);
       toast.error('Error al eliminar el código QR');
-      setShowDeleteDialog(false);
     } finally {
       setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
