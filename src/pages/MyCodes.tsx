@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { QRCodeFilters } from "@/components/qr/QRCodeFilters";
 import { QRCodeList } from "@/components/qr/QRCodeList";
 import { QRCodePagination } from "@/components/qr/QRCodePagination";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MyCodes = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("active");
   const [selectedType, setSelectedType] = useState("");
@@ -19,16 +22,19 @@ const MyCodes = () => {
   const [selectedQRs, setSelectedQRs] = useState<Set<string>>(new Set());
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Mis códigos QR</h1>
-        <div className="flex gap-3">
-          <Button variant="outline" className="flex items-center gap-2">
+    <div className="p-4 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
+        <h1 className="text-xl md:text-2xl font-semibold">Mis códigos QR</h1>
+        <div className="flex w-full md:w-auto gap-2 md:gap-3">
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none items-center gap-2"
+          >
             <FolderPlus className="w-4 h-4" />
-            Carpeta nueva
+            {!isMobile && "Carpeta nueva"}
           </Button>
           <Button 
-            className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
+            className="flex-1 md:flex-none items-center gap-2 bg-green-500 hover:bg-green-600"
             onClick={() => navigate('/qrgenerator')}
           >
             Crear código QR
@@ -37,12 +43,15 @@ const MyCodes = () => {
       </div>
 
       <Alert className="mb-6 bg-green-500/10 border-green-500/20">
-        <AlertDescription className="flex justify-between items-center text-green-700">
+        <AlertDescription className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-green-700">
           <div className="flex items-center gap-2">
             <span>¿Podría dejarnos una reseña del servicio? Es muy importante para nosotros.</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="text-green-700 border-green-500">
+          <div className="flex w-full md:w-auto items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex-1 md:flex-none text-green-700 border-green-500"
+            >
               Escribir una reseña
             </Button>
             <Button variant="ghost" size="icon">
@@ -54,13 +63,15 @@ const MyCodes = () => {
 
       <div className="mb-6">
         <h2 className="text-lg font-medium mb-4">Mis carpetas</h2>
-        <Card className="w-48 h-48 flex flex-col items-center justify-center border-dashed cursor-pointer hover:bg-gray-50">
-          <FolderPlus className="w-8 h-8 text-green-500 mb-2" />
-          <span className="text-green-500">Carpeta nueva</span>
-        </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <Card className="aspect-square flex flex-col items-center justify-center border-dashed cursor-pointer hover:bg-gray-50">
+            <FolderPlus className="w-8 h-8 text-green-500 mb-2" />
+            <span className="text-green-500 text-sm md:text-base">Carpeta nueva</span>
+          </Card>
+        </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <QRCodeFilters
           search={search}
           setSearch={setSearch}
@@ -81,7 +92,7 @@ const MyCodes = () => {
 
         <QRCodePagination
           currentPage={currentPage}
-          totalResults={0} // Este valor se actualizará cuando implementemos la paginación
+          totalResults={0}
           limit={Number(limit)}
           onPageChange={setCurrentPage}
         />

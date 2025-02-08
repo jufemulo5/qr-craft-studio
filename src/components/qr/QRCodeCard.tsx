@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,6 +10,7 @@ import { QRScanCounter } from "./QRScanCounter";
 import { QRCardActions } from "./QRCardActions";
 import { QRCardMenu } from "./QRCardMenu";
 import { DeleteQRDialog } from "./DeleteQRDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QRCode {
   id: string;
@@ -36,6 +36,7 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
   const [scanCount, setScanCount] = useState(qr.scans || 0);
   const [uniqueScanCount, setUniqueScanCount] = useState(qr.unique_scans || 0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setScanCount(qr.scans || 0);
@@ -95,39 +96,43 @@ export function QRCodeCard({ qr, onSelect, isSelected, onDelete }: QRCodeCardPro
 
   return (
     <Card className="p-4">
-      <div className="flex items-center gap-4">
-        <Checkbox 
-          id={`qr-${qr.id}`} 
-          checked={isSelected} 
-          onCheckedChange={onSelect} 
-        />
-        <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qr.content)}`}
-            alt={`QR Code for ${qr.name}`}
-            className="w-full h-full object-cover"
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <Checkbox 
+            id={`qr-${qr.id}`} 
+            checked={isSelected} 
+            onCheckedChange={onSelect} 
           />
+          <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qr.content)}`}
+              alt={`QR Code for ${qr.name}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-gray-500">{qr.type}</span>
-            <h3 className="font-medium">{qr.name}</h3>
+            <h3 className="font-medium truncate">{qr.name}</h3>
             <EditQRDialog qrCode={qr} />
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
             <span>{new Date(qr.created_at).toLocaleDateString()}</span>
-            <div className="flex items-center gap-1">
-              <Link2 className="w-4 h-4" />
-              <span className="text-gray-700">{qr.content}</span>
+            <div className="flex items-center gap-1 min-w-0">
+              <Link2 className="w-4 h-4 flex-shrink-0" />
+              <span className="text-gray-700 truncate">{qr.content}</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
           <QRScanCounter 
             scanCount={scanCount} 
             uniqueScanCount={uniqueScanCount} 
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full md:w-auto">
             <QRCardActions
               qrCode={qr}
               onDownload={() => setShowDownloadDialog(true)}
