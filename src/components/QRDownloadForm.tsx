@@ -34,6 +34,7 @@ interface QRDownloadFormProps {
 export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const { toast } = useToast();
+  const [qrSaved, setQrSaved] = useState(false);
   
   const form = useForm<DownloadFormValues>({
     resolver: zodResolver(downloadFormSchema),
@@ -43,9 +44,11 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
     },
   });
 
-  // Generar QR y guardar en la base de datos al montar el componente
+  // Generate QR and save in the database only once
   useState(() => {
     const generateAndSaveQR = async () => {
+      if (qrSaved) return; // Prevent duplicate saves
+
       try {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 400,
@@ -56,28 +59,34 @@ export function QRDownloadForm({ url, name }: QRDownloadFormProps) {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
-          const { error } = await supabase.from('qr_codes').insert({
-            user_id: user.id,
-            name: name,
-            type: 'url',
-            content: url,
-          });
+          // Check if a QR code with this URL already exists for the user
+          const { data: existingQRs } = await supabase
+            .from('qr_codes')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('content', url)
+            .single();
 
-          if (error) {
-            console.error('Error saving QR code:', error);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "No se pudo guardar el código QR",
+          if (!existingQRs) {
+            const { error } = await supabase.from('qr_codes').insert({
+              user_id: user.id,
+              name: name,
+              type: 'url',
+              content: url,
             });
+
+            if (error) throw error;
+            setQrSaved(true);
+          } else {
+            setQrSaved(true);
           }
         }
       } catch (error) {
-        console.error('Error generating QR code:', error);
+        console.error('Error generating/saving QR code:', error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "No se pudo generar el código QR",
+          description: "No se pudo generar o guardar el código QR",
         });
       }
     };

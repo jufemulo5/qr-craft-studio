@@ -1,3 +1,4 @@
+
 import { QRCodeCard } from "./QRCodeCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,7 +36,7 @@ export function QRCodeList({ selectedQRs, setSelectedQRs }: QRCodeListProps) {
           schema: 'public',
           table: 'qr_codes'
         },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ["qrCodes"] });
         }
       )
