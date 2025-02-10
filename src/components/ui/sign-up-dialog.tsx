@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -28,12 +29,24 @@ export function SignUpDialog() {
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // Si el usuario ya existe, cambiamos automáticamente a modo login
+          if (error.message.includes("already registered")) {
+            setIsSignUp(false);
+            toast({
+              title: "Usuario ya registrado",
+              description: "Por favor, inicia sesión con tu cuenta existente.",
+            });
+            return;
+          }
+          throw error;
+        }
 
         toast({
           title: "¡Registro exitoso!",
           description: "Se ha enviado un correo de confirmación a tu email.",
         });
+        setIsOpen(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -46,10 +59,10 @@ export function SignUpDialog() {
           title: "¡Bienvenido de vuelta!",
           description: "Has iniciado sesión exitosamente.",
         });
+        setIsOpen(false);
         navigate('/qrgenerator');
       }
 
-      setIsOpen(false);
       setEmail("");
       setPassword("");
     } catch (error: any) {
