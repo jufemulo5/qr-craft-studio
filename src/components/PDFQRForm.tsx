@@ -1,21 +1,14 @@
 
-import { useState } from "react";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Upload } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { QRNameField } from "./QRNameField";
 import { supabase } from "@/integrations/supabase/client";
-
-const pdfFormSchema = z.object({
-  name: z.string().min(1, "Por favor, ingrese un nombre para el código QR"),
-  file: z.any().refine((file) => file instanceof File, "Por favor, seleccione un archivo PDF"),
-});
-
-type PDFFormValues = z.infer<typeof pdfFormSchema>;
+import { PDFUploadZone } from "./pdf/PDFUploadZone";
+import { pdfFormSchema, PDFFormValues } from "./pdf/types";
 
 interface PDFQRFormProps {
   onBack: () => void;
@@ -23,7 +16,6 @@ interface PDFQRFormProps {
 }
 
 export function PDFQRForm({ onBack, onSubmit }: PDFQRFormProps) {
-  const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<PDFFormValues>({
@@ -32,55 +24,6 @@ export function PDFQRForm({ onBack, onSubmit }: PDFQRFormProps) {
       name: "",
     },
   });
-
-  const handleFileDrop = async (file: File) => {
-    if (file.type !== "application/pdf") {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Por favor, seleccione un archivo PDF",
-      });
-      return;
-    }
-
-    if (file.size > 100 * 1024 * 1024) { // 100MB
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "El archivo no debe superar los 100MB",
-      });
-      return;
-    }
-
-    form.setValue("file", file);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      await handleFileDrop(file);
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await handleFileDrop(file);
-    }
-  };
 
   const handleSubmit = async (values: PDFFormValues) => {
     try {
@@ -127,35 +70,7 @@ export function PDFQRForm({ onBack, onSubmit }: PDFQRFormProps) {
               </div>
             </div>
 
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center ${
-                isDragging ? "border-primary bg-primary/5" : "border-gray-300"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <div className="mx-auto w-12 h-12 mb-4">
-                <Upload className="w-12 h-12 text-gray-400" />
-              </div>
-              <p className="text-sm text-gray-600 mb-2">
-                Arrastre y suelte su archivo PDF aquí o
-              </p>
-              <label className="inline-block">
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                />
-                <span className="text-primary hover:underline cursor-pointer">
-                  seleccione un archivo
-                </span>
-              </label>
-              <p className="text-xs text-gray-500 mt-2">
-                Tamaño máximo: 100 MB
-              </p>
-            </div>
+            <PDFUploadZone setValue={form.setValue} />
           </div>
 
           <div className="bg-white rounded-lg p-6 space-y-6 shadow-sm">
