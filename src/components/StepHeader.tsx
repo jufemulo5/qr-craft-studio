@@ -1,11 +1,6 @@
-import { Link } from "react-router-dom";
+
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SignUpDialog } from "@/components/ui/sign-up-dialog";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
 
 interface StepHeaderProps {
   currentStep: number;
@@ -18,51 +13,10 @@ const steps = [
 ];
 
 export function StepHeader({ currentStep }: StepHeaderProps) {
-  const [user, setUser] = useState<any>(null);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "¡Hasta pronto!",
-        description: "Has cerrado sesión exitosamente.",
-      });
-    }
-  };
-
   return (
     <div className="w-full py-4 px-6 border-b">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <Link to="/">
-          <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/f07bce87-1046-43d7-80d9-eec8cb1829a1.png" alt="QR Generator" className="h-8" />
-            <span className="font-semibold text-lg">Online QR Generator</span>
-          </div>
-        </Link>
-        <div className="hidden md:flex items-center space-x-4">
+      <div className="max-w-4xl mx-auto flex items-center justify-center">
+        <div className="flex items-center space-x-4">
           {steps.map((step) => (
             <div
               key={step.number}
@@ -94,18 +48,6 @@ export function StepHeader({ currentStep }: StepHeaderProps) {
               <span className="text-sm font-medium">{step.title}</span>
             </div>
           ))}
-        </div>
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <>
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-              <Button variant="ghost" onClick={handleSignOut}>
-                Cerrar sesión
-              </Button>
-            </>
-          ) : (
-            <SignUpDialog />
-          )}
         </div>
       </div>
     </div>
