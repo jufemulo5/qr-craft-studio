@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { QRNameField } from "@/components/QRNameField";
-import { Instagram, Tiktok, Facebook } from "lucide-react";
+import { Instagram, Youtube, Facebook } from "lucide-react";
 
 const linkListFormSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -106,9 +106,9 @@ export function LinkListQRForm({ onBack, onSubmit }: LinkListQRFormProps) {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-                    <Tiktok className="w-6 h-6 text-white" />
+                    <Youtube className="w-6 h-6 text-white" />
                   </div>
-                  <Input placeholder="Tu usuario de TikTok" />
+                  <Input placeholder="Tu usuario de YouTube" />
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
