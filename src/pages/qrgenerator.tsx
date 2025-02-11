@@ -4,6 +4,7 @@ import { StepHeader } from "@/components/StepHeader";
 import { QRTypeCard } from "@/components/QRTypeCard";
 import { WebsiteQRForm } from "@/components/WebsiteQRForm";
 import { PDFQRForm } from "@/components/PDFQRForm";
+import { LinkListQRForm } from "@/components/LinkListQRForm";
 import { QRDownloadForm } from "@/components/QRDownloadForm";
 import {
   Globe,
@@ -118,6 +119,15 @@ export default function Index() {
     setCurrentStep(3);
   };
 
+  const handleLinkListSubmit = (values: { url: string; name: string }) => {
+    setQRData((prev) => ({
+      ...prev!,
+      url: values.url,
+      name: values.name,
+    }));
+    setCurrentStep(3);
+  };
+
   const handleBack = () => {
     setCurrentStep(1);
     setSelectedType(null);
@@ -168,6 +178,18 @@ export default function Index() {
             <PDFQRForm
               onBack={handleBack}
               onSubmit={handlePDFSubmit}
+            />
+          </>
+        )}
+
+        {currentStep === 2 && selectedType === "Lista de enlaces" && (
+          <>
+            <h1 className="text-2xl font-bold mb-8">
+              2. Añada contenido a su código QR
+            </h1>
+            <LinkListQRForm
+              onBack={handleBack}
+              onSubmit={handleLinkListSubmit}
             />
           </>
         )}
